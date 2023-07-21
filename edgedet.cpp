@@ -797,4 +797,4 @@ namespace edgedet
 		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
 		//cout << "Coordinate Conversion Consume: " << timer * 1000.0 << " ms\n" << endl;
 	}
-}// namespace edgedet
+} // namespace edgedet

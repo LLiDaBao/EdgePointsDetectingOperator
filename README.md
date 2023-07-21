@@ -31,8 +31,11 @@ __Result__
 *Edge Detecting Result*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result1.jpg)  
 
-*test2*:  
+*Loop*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/loop.jpg)  
-
+  
+*Flatten*  
+![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/loop_flatten.jpg)  
+  
 *result2*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result2.jpg)

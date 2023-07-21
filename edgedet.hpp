@@ -40,7 +40,7 @@ namespace edgedet
 	};
 
 	// MeasureHandle struct definition, from cv::RotatedRect
-	class MeasureHandle	// 有待进一步优化，基类和派生类的形式
+	class MeasureHandle	// improve in the future
 	{
 	public:
 		cv::Point2f center;
@@ -78,8 +78,8 @@ namespace edgedet
 	*/
 	extern cv::Point interpolatePoint(const cv::Point2f& point2f, Interpolation inter = Interpolation::NEAREST_NEIGHBOR);
 	extern cv::Point nearestNeighbor(const cv::Point2f& point2f);
-	extern cv::Point bilinear(const cv::Point2f& point2f);	// 待实现
-	extern cv::Point bicubic(const cv::Point2f& point2f);	// 待实现
+	extern cv::Point bilinear(const cv::Point2f& point2f);	// implement in the future
+	extern cv::Point bicubic(const cv::Point2f& point2f);	// implement in the future
 
 
 	/** @brief Get the startand end points of profile line of given rotated rectangle.

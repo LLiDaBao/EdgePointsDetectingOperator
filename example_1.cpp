@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	cv::Mat src = cv::imread("./images/color_barcode.png", 0);
+	cv::Mat src = cv::imread("./images/color_barcode.jpg", 0);
 
 	cv::Mat canvas = src.clone();
 	cv::cvtColor(canvas, canvas, cv::COLOR_GRAY2BGR);
@@ -42,7 +42,5 @@ int main(int argc, char** argv)
 	cv::namedWindow("Edge Points", cv::WINDOW_FREERATIO);
 	cv::imshow("Edge Points", canvas);
 	cv::waitKey(0);
-	
-	cv::imwrite("./result.png", canvas);
 	return 0;
 }

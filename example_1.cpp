@@ -2,7 +2,7 @@
 #include <string>
 
 
-// Example: Straight Line Edge Detecting
+// Example1: Straight Line Edge Detecting
 
 int main(int argc, char** argv)
 {

@@ -10,10 +10,10 @@ ___亚像素边缘点提取___
 [4]: 过滤并提取边缘关键点, 执行Devernay方法亚像素化;   
 
 ___1D Sub-Pixel Edge Points Extraction___    
-[1]: Generate Rotated Rectangle or Annulus   
-[2]: Calculate Avarage Gray Value along the Direction Perpendicular to Profile Line  
-[3]: Gaussian Blur and Calculate 1st Derivation  
-[4]: Threshold and Select by Devernay method   
+[1]: Generate Rotated Rectangle or Annulus.   
+[2]: Calculate Avarage Gray Value along the Direction Perpendicular to Profile Line.  
+[3]: Gaussian Blur and Calculate 1st Derivation.  
+[4]: Threshold and Select by Devernay method.   
   
 ___椭圆检测___  
 [1]: 创建映射将图片沿极坐标展平;  
@@ -21,10 +21,11 @@ ___椭圆检测___
 [3]: 逆映射这些点为原坐标系中, 结果即为椭圆边缘点, 拟合;
 
 ___Ellipse Detect___   
-[1]: Map Source Image Pixels to New Postion like Flatten Image  
-[2]: Dynamic Programming to Search for Global Maximum Point, and then Search for Local Maximum Point Step by Step  
-[3]: Remap Those Points to Original Postioin. These Points are Ellipse Edge, You Could Fit Them if U Like  
-__Result__  
+[1]: Map Source Image Pixels to New Postion like Flatten Image.  
+[2]: Dynamic Programming to Search for Global Maximum Point, and then Search for Local Maximum Point Step by Step.  
+[3]: Remap Those Points to Original Postioin. These Points are Ellipse Edge, You Could Fit Them if U Like.  
+  
+___Result___  
 *Color Barcode*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/color_barcode.jpg)  
 

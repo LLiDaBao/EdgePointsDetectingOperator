@@ -37,5 +37,5 @@ __Result__
 *Flatten*  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/loop_flatten.jpg)  
   
-*result2*:  
+*Ellipse Detecting Result*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result2.jpg)

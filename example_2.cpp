@@ -1,7 +1,7 @@
 #include "edgedet.hpp"
 #include <string>
 
-//Example: 
+//Example: Flatten Circle and Search for Edge Points
 
 int main(int argc, char** argv)
 {

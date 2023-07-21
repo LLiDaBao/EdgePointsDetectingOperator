@@ -17,22 +17,22 @@ ___1D Sub-Pixel Edge Points Extraction___
   
 ___椭圆检测___  
 [1]: 创建映射将图片沿极坐标展平;  
-[2]: 动态规划在展平图片中寻找局部极值点;  
+[2]: 动态规划在展平图片中寻找全局极值点, 并逐步搜索局部极值点;  
 [3]: 逆映射这些点为原坐标系中, 结果即为椭圆边缘点, 拟合;
 
 ___Ellipse Detect___   
 [1]: Map Source Image Pixels to New Postion like Flatten Image  
-[2]: Dynamic Programming to Search Local Maximum Postion  
+[2]: Dynamic Programming to Search for Global Maximum Point, and then Search for Local Maximum Point Step by Step  
 [3]: Remap Those Points to Original Postioin. These Points are Ellipse Edge, You Could Fit Them if U Like  
 __Result__  
-*test1*:  
-![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/test.jpg)  
+*Color Barcode*:  
+![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/color_barcode.jpg)  
 
-*result1*:  
-![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result.jpg)  
+*Edge Detecting Result*:  
+![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result1.jpg)  
 
 *test2*:  
-![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/test2.png)  
+![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/loop.jpg)  
 
 *result2*:  
 ![image](https://github.com/LLiDaBao/EdgePointsDetectingOperator/blob/master/images/result2.jpg)

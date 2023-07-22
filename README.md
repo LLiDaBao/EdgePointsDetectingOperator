@@ -23,7 +23,7 @@ ___椭圆检测___
 ___Ellipse Detect___   
 [1]: Map Source Image Pixels to New Postion like Flatten Image.  
 [2]: Dynamic Programming to Search for Global Maximum Point, and then Search for Local Maximum Point Step by Step.  
-[3]: Remap Those Points to Original Postioin. These Points are Ellipse Edge, You Could Fit Them if U Like.  
+[3]: Remap Those Points to Original Position. These Points are in Ellipse Edge, You Could Fit Them if You'd Like.  
   
 ___Result___  
 *Color Barcode*:  

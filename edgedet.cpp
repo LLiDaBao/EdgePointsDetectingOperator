@@ -647,7 +647,8 @@ namespace edgedet
 		Y = cv::repeat(Y.t(), 1, X.cols);
 	}
 
-	void ellipseEdgeDetect(const cv::Mat& src, const cv::Point2f& flatten_center, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points, bool is_dark)
+	void ellipseEdgeDetect(const cv::Mat& src, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points,
+		const cv::Point2f& flatten_center, int sample_radius, int num_sample_angle, double col_ratio, bool is_dark)
 	{
 		//double timer = cv::getTickCount();
 
@@ -663,26 +664,30 @@ namespace edgedet
 			gray = src;
 		}
 
-		int sample_radius = 0;
-		if (flatten_center.x <= src.cols / 2 && flatten_center.y <= src.rows / 2)
+		// default: minimum distance to 4 corners
+		if (sample_radius <= 0)
 		{
-			sample_radius = cvCeil(std::sqrt(std::pow(flatten_center.x, 2.0) + std::pow(flatten_center.y, 2.0)));
-		}
-		else if (flatten_center.x >= src.cols / 2 && flatten_center.y <= src.rows / 2)
-		{
-			sample_radius = cvCeil(std::sqrt(std::pow(src.cols - flatten_center.x, 2.0) + std::pow(flatten_center.y, 2.0)));
-		}
-		else if (flatten_center.x <= src.cols / 2 && flatten_center.y >= src.rows / 2)
-		{
-			sample_radius = cvCeil(std::sqrt(std::pow(flatten_center.x, 2.0) + std::pow(src.rows - flatten_center.y, 2.0)));
-		}
-		else
-		{
-			sample_radius = cvCeil(std::sqrt(std::pow(src.cols - flatten_center.x, 2.0) + std::pow(src.rows - flatten_center.y, 2.0)));
+			if (flatten_center.x <= src.cols / 2 && flatten_center.y <= src.rows / 2)
+			{
+				sample_radius = cvCeil(std::sqrt(std::pow(flatten_center.x, 2.0) + std::pow(flatten_center.y, 2.0)));
+			}
+			else if (flatten_center.x >= src.cols / 2 && flatten_center.y <= src.rows / 2)
+			{
+				sample_radius = cvCeil(std::sqrt(std::pow(src.cols - flatten_center.x, 2.0) + std::pow(flatten_center.y, 2.0)));
+			}
+			else if (flatten_center.x <= src.cols / 2 && flatten_center.y >= src.rows / 2)
+			{
+				sample_radius = cvCeil(std::sqrt(std::pow(flatten_center.x, 2.0) + std::pow(src.rows - flatten_center.y, 2.0)));
+			}
+			else
+			{
+				sample_radius = cvCeil(std::sqrt(std::pow(src.cols - flatten_center.x, 2.0) + std::pow(src.rows - flatten_center.y, 2.0)));
+			}
 		}
 
 		const int num_sample_rad = sample_radius;	// sample number of raidus
-		const int num_sample_phi = 2 * num_sample_rad;	// sample number of angle
+		const int num_sample_phi = num_sample_angle > 0 ? 
+			num_sample_angle : std::max(2 * num_sample_rad, 360);	// sample number of angle
 
 		cv::Mat Phi, Rad;
 		linspace(0.0f, CV_2PI, num_sample_phi, Phi);
@@ -743,7 +748,7 @@ namespace edgedet
 
 		for (int i = dst.cols - 1; i > 0; --i)
 		{
-			if (i == static_cast<int>(0.75 * dst.cols))
+			if (i == static_cast<int>(1 - col_ratio * dst.cols))
 			{
 				int local_max = argmax<float>((float*)dp.data, dp.rows);
 				range_start = (local_max - dp.rows / 10 > 0) ? (local_max - dp.rows / 10) : 0;
@@ -784,19 +789,19 @@ namespace edgedet
 		int bias = 0;
 		int index = argmax(((float*)start.data), dst.rows - 0);	// global maxium point's index
 
-		//std::vector<cv::Point> p;
-		//p.resize(dst.cols);
-		//p[0] = cv::Point(0, index);
-		//cv::Mat drawImg;
-		//dst.convertTo(drawImg, CV_8UC1);
-		//cv::cvtColor(drawImg, drawImg, cv::COLOR_GRAY2BGR);
-		//for (int i = 1; i < p.size(); i++)
-		//{
-		//	int py = index_map.ptr<int>(index)[i];
-		//	p[i] = cv::Point(i, py);
-		//	index = py;
-		//	cv::circle(drawImg, p[i], 1, cv::Scalar(0, 0, 255));
-		//}
+		std::vector<cv::Point> p;
+		p.resize(dst.cols);
+		p[0] = cv::Point(0, index);
+		cv::Mat drawImg;
+		dst.convertTo(drawImg, CV_8UC1);
+		cv::cvtColor(drawImg, drawImg, cv::COLOR_GRAY2BGR);
+		for (int i = 1; i < p.size(); i++)
+		{
+			int py = index_map.ptr<int>(index)[i];
+			p[i] = cv::Point(i, py);
+			index = py;
+			cv::circle(drawImg, p[i], 1, cv::Scalar(0, 0, 255));
+		}
 
 		ellip_points.clear();
 		ellip_points.resize(dst.cols);

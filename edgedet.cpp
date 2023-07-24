@@ -647,7 +647,7 @@ namespace edgedet
 		Y = cv::repeat(Y.t(), 1, X.cols);
 	}
 
-	void ellipseEdgeDetect(const cv::Mat& src, const cv::Point2f& flatten_center, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points)
+	void ellipseEdgeDetect(const cv::Mat& src, const cv::Point2f& flatten_center, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points, bool is_dark)
 	{
 		//double timer = cv::getTickCount();
 
@@ -707,7 +707,14 @@ namespace edgedet
 				}
 			});
 
-		cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, 255);	// straight the ellipse
+		if (is_dark)
+		{
+			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, 255);	// straight the ellipse
+		}
+		else
+		{
+			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, 0);
+		}
 
 		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
 		//cout << "Flatten Image Consume: " << timer * 1000.0 << " ms\n" << endl;
@@ -719,8 +726,17 @@ namespace edgedet
 		int range_start = 0, range_end = dst.rows;	// to limit the range of searching
 		//timer = cv::getTickCount();
 
-		cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, 255);
-		temp.convertTo(temp, CV_32F, -1, 255);		// reverse image pixel to 255 - pixelVal
+
+		if (is_dark) 
+		{
+			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, 255);
+			temp.convertTo(temp, CV_32F, -1.0, 255.0);		// reverse image pixel to 255 - pixelVal
+		}
+		else
+		{
+			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, 0);
+			temp.convertTo(temp, CV_32F);		// reverse image pixel to 255 - pixelVal
+		}
 
 		cv::Mat dp = cv::Mat::zeros(temp.rows, 1, CV_32F);
 		cv::Mat_<int> index_map(dst.rows, dst.cols - 1, 0);
@@ -791,7 +807,7 @@ namespace edgedet
 			int py = index_map.ptr<int>(index)[i];
 
 			// Coordinate Conversion, dst(X, Y) = src(map_x(X, Y), map_y(X, Y))
-			ellip_points[i] = cv::Point2f(map_x.ptr<float>(py)[i], map_y.ptr<float>(py)[i]);
+			ellip_points[i] = cv::Point2f(map_x.ptr<float>(py)[i], map_y.ptr<float>(py)[i]);	
 			index = py;
 		}
 		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();

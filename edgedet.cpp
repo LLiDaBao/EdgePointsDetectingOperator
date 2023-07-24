@@ -748,7 +748,7 @@ namespace edgedet
 
 		for (int i = dst.cols - 1; i > 0; --i)
 		{
-			if (i == static_cast<int>(1 - col_ratio * dst.cols))
+			if (i == static_cast<int>((1 - col_ratio) * dst.cols))
 			{
 				int local_max = argmax<float>((float*)dp.data, dp.rows);
 				range_start = (local_max - dp.rows / 10 > 0) ? (local_max - dp.rows / 10) : 0;

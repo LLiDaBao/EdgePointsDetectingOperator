@@ -200,9 +200,9 @@ namespace edgedet
 	* @param dst: output image(#CV_8UC1).
 	* @param ellip_points: output. ellipse points found from flatten image.
 	* @param flatten_center: the center point of input image to flatten.
-	* @param sample_radius: max raidius to flatten image.
-	* @param num_sample_angle: number of angle samples in range 0 to 2PI.
-	* @param col_ratio: control search range in dynamic programming.
+	* @param sample_radius: max raidius to flatten image. -1 meas keeping default behavior.
+	* @param num_sample_angle: number of angle samples in range 0 to 2PI. -1 meas keeping default behavior.
+	* @param col_ratio: control search range in dynamic programming. deafault value is 0.25.
 	* @param is_dark: flag to set mode, detecting dark edge or luminous edge.
 	*/
 	extern void ellipseEdgeDetect(const cv::Mat& src, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points, 

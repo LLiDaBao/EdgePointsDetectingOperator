@@ -200,6 +200,7 @@ namespace edgedet
 	* @param flatten_center: the center point of input image to flatten.
 	* @param dst: output image(#CV_8UC1).
 	* @param ellip_points: output. ellipse points found from flatten image.
+	* @param is_dark: flag to set mode, detecting dark edge or luminous edge.
 	*/
-	extern void ellipseEdgeDetect(const cv::Mat& src, const cv::Point2f& flatten_center, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points);
+	extern void ellipseEdgeDetect(const cv::Mat& src, const cv::Point2f& flatten_center, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points, bool is_dark = true);
 }

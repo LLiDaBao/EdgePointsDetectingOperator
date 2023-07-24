@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 	std::vector<cv::Point2f> points;
 
 	double timer = cv::getTickCount();
-	edgedet::ellipseEdgeDetect(src,  cv::Point2f(src.cols / 2, src.rows / 2), dst, points);
+	edgedet::ellipseEdgeDetect(src, dst, points, cv::Point2f(src.cols / 2, src.rows / 2));
 	std::cout << "Detecting Ellipse Edge Points Consume: " << (cv::getTickCount() - timer) * 1000.0 / cv::getTickFrequency() << " ms\n" << std::endl;
 	cv::Mat canvas;
 	cv::cvtColor(src, canvas, cv::COLOR_GRAY2BGR);

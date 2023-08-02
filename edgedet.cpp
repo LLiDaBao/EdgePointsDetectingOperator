@@ -751,6 +751,8 @@ namespace edgedet
 			if (i == static_cast<int>((1 - col_ratio) * dst.cols))
 			{
 				int local_max = argmax<float>((float*)dp.data, dp.rows);
+
+				// limit searching range in ±rows/ value. if value is too small, the algorithm may be wrong. 
 				range_start = (local_max - dp.rows / 10 > 0) ? (local_max - dp.rows / 10) : 0;
 				range_end = (local_max + dp.rows / 10 < temp.rows) ? (local_max + dp.rows / 10) : dp.rows - 1;
 			}

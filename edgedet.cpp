@@ -1,4 +1,4 @@
-﻿#include "edgedet.hpp"
+#include "edgedet.hpp"
 
 using std::cout;
 using std::cerr;
@@ -8,36 +8,36 @@ static double timer = 0.0;
 
 namespace edgedet
 {
-	cv::Point nearestNeighbor(const cv::Point2f& point2f)
+	cv::Point2f nearestNeighbor(const cv::Point2f& point2f)
 	{
 		int floor_x = cvFloor(point2f.x), floor_y = cvFloor(point2f.y);
 		float diff_x = point2f.x - floor_x, diff_y = point2f.y - floor_y;
 
-		cv::Point nearest;
+		cv::Point2f nearest;
 
 		if (diff_x <= 0.5 && diff_y <= 0.5)
 		{
-			nearest = cv::Point(floor_x, floor_y);
+			nearest = cv::Point2f(floor_x, floor_y);
 		}
 		else if (diff_x <= 0.5 && diff_y > 0.5)
 		{
-			nearest = cv::Point(floor_x, floor_y + 1);
+			nearest = cv::Point2f(floor_x, floor_y + 1);
 		}
 		else if (diff_x > 0.5 && diff_y <= 0.5)
 		{
-			nearest = cv::Point(floor_x + 1, floor_y);
+			nearest = cv::Point2f(floor_x + 1, floor_y);
 		}
 		else
 		{
-			nearest = cv::Point(floor_x + 1, floor_y + 1);
+			nearest = cv::Point2f(floor_x + 1, floor_y + 1);
 		}
 
 		return nearest;
 	}
 
-	cv::Point interpolatePoint(const cv::Point2f& point2f, Interpolation inter)
+	cv::Point2f interpolatePoint(const cv::Point2f& point2f, Interpolation inter)
 	{
-		cv::Point inter_point;	// return
+		cv::Point2f inter_point;	// return
 
 		switch (inter)
 		{
@@ -46,7 +46,7 @@ namespace edgedet
 			break;
 
 		case Interpolation::BILINEAR:
-
+			
 			break;
 
 		case Interpolation::BICUBIC:
@@ -60,6 +60,7 @@ namespace edgedet
 	std::pair<cv::Point2f, cv::Point2f> getProfileLine(const MeasureHandle& m_handle)
 	{
 		std::pair<cv::Point2f, cv::Point2f> profile_line;
+
 		profile_line.first = cv::Point2f(
 			(m_handle.points[0].x + m_handle.points[1].x) * 0.5f,
 			(m_handle.points[0].y + m_handle.points[1].y) * 0.5f
@@ -88,11 +89,11 @@ namespace edgedet
 
 	void GaussianBlur(const cv::Mat& avg_grays, cv::Mat& blur, int ksize, float sigma)
 	{
-		cv::Mat kernel =
+		cv::Mat kernel = 
 			cv::getGaussianKernel(ksize, sigma, CV_32F).t();
 		cv::flip(kernel, kernel, -1);
 
-		cv::filter2D(avg_grays, blur, CV_32F, kernel,
+		cv::filter2D(avg_grays, blur, CV_32F, kernel, 
 			cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
 		//cv::GaussianBlur(avg_grays, blur, cv::Size(ksize, 1), sigma, 0.0, cv::BORDER_REPLICATE);
 	}
@@ -107,7 +108,7 @@ namespace edgedet
 		deriv *= (0.5 * sigma * sqrt(2.0 * CV_PI));	// scale the derivation
 	}
 
-	void RotatedRect2MeasureHandle(const cv::RotatedRect& r_rect,
+	void RotatedRect2MeasureHandle(const cv::RotatedRect& r_rect, 
 		MeasureHandle& m_handle, Interpolation inter)
 	{
 		m_handle.type = MeasureHandleType::RECTANGLE;
@@ -146,9 +147,10 @@ namespace edgedet
 		return true;
 	}
 
-	bool genMeasureRectangle2(cv::RotatedRect& r_rect, MeasureHandle& m_handle,
-		float center_row, float center_col, float phi, float length1, float length2, Interpolation inter)
+	bool genMeasureRectangle2(MeasureHandle& m_handle,
+		float center_row, float center_col,float phi, float length1, float length2, Interpolation inter)
 	{
+		cv::RotatedRect r_rect;
 		// restriction of params
 		if (!(-180.0f <= phi && phi <= 180.0f))
 		{
@@ -208,7 +210,7 @@ namespace edgedet
 
 			avg_grays = cv::Mat::zeros(cv::Size(cvRound((arc_end_angle - arc_start_angle) / delta_angle), 1), CV_32F);
 
-#pragma omp parallel for
+			#pragma omp parallel for
 			for (int i = 0; i != cvRound((arc_end_angle - arc_start_angle) / delta_angle); ++i)
 			{
 				// calculate avarge gray value along the current perpendicular line
@@ -265,7 +267,7 @@ namespace edgedet
 				}
 			}
 
-#pragma omp parallel for
+			#pragma omp parallel for
 			for (int i = 0; i != cvRound(2.0 * m_handle.length1); ++i)
 			{
 				cv::Point2f curr_profile_pt;
@@ -297,7 +299,7 @@ namespace edgedet
 						start_perpend_x =
 							curr_profile_pt.x - 1.0 * m_handle.length2
 							* sin(CV_PI / 180.0f * abs(limit_phi));
-
+						
 						curr_perpend_pt =
 							getCurrPoint(curr_profile_pt, vertical_slope,
 								start_perpend_x + sin(CV_PI / 180.0f * abs(limit_phi)) * j * step);
@@ -319,10 +321,11 @@ namespace edgedet
 
 					const auto& inter_point = interpolatePoint(curr_perpend_pt);
 
-					// check if is legal point
-					if (inter_point.x < 0 || inter_point.y < 0)
+					// check if is legal point, if not, skip current point
+					if (inter_point.x < 0 || inter_point.y < 0 || 
+						inter_point.x >= src.rows || inter_point.y >= src.cols)
 					{
-						cerr << "\nIllegal Postion...\nSkip Current Point...\n\n" << endl;
+						//cerr << "\nIllegal Postion...\nSkip Current Point...\n\n" << endl;
 						++skip_num;
 						continue;
 					}
@@ -338,16 +341,16 @@ namespace edgedet
 			}
 		}
 
-		cv::destroyAllWindows();
+		//cv::destroyAllWindows();
 		return true;
 	}
 
-	double edgeSubPixel(const cv::Mat& deriv, double& offset, int local_max_ind)
+	void edgeSubPixel(const cv::Mat& deriv, double& offset, int local_max_ind)
 	{
-		if (local_max_ind == 0 || local_max_ind == deriv.cols - 1)	// neet at least 3 points
+		if (local_max_ind == 0 || local_max_ind == deriv.cols - 1)	// need at least 3 points
 		{
 			offset = local_max_ind;
-			return deriv.at<float>(0, local_max_ind);
+			return;
 		}
 
 		cv::Mat coeffs;	// c0, c1, c2
@@ -367,15 +370,19 @@ namespace edgedet
 		offset = -0.5 * coeffs.at<float>(1, 0) / coeffs.at<float>(2, 0);
 		if (abs(offset - local_max_ind) >= 1.0)
 			offset = local_max_ind;
-
-		return (4.0 * coeffs.at<float>(2, 0) * coeffs.at<float>(0, 0) -
-			coeffs.at<float>(1, 0) * coeffs.at<float>(1, 0)) / (4.0 * coeffs.at<float>(2, 0));
 	}
 
 	bool measurePos(const cv::Mat& src, const MeasureHandle& m_handle, std::vector<cv::Point2f>& edge_points,
 		std::vector<double>& amplitudes, std::vector<double>& distances, float threshold, int ksize, float sigma,
 		Transition transition, Select select, Interpolation inter)
 	{
+		if (src.empty() || src.type() != CV_8UC1)
+		{
+			std::cout << "\nError Image...\n" << std::endl;
+			return false;
+		}
+		
+
 		static double timer_total = 0.0;// start calculating the time
 		timer_total = cv::getTickCount();
 
@@ -394,9 +401,9 @@ namespace edgedet
 
 		/**** Points Filter ****/
 
-		constexpr int MAX_CONSEC_NUM = 4;	// how to set this value ?
+		constexpr int MAX_CONSEC_NUM = 4;	// local maximum range, 
 		std::vector<size_t> candidate_ids;	// index of 1st derivation greater than threshold,
-		// from left to right.
+											// from left to right.
 
 		edge_points.clear();	// clear useless data
 		amplitudes.clear();
@@ -440,9 +447,9 @@ namespace edgedet
 			break;
 		}
 
-		if (candidate_ids.empty())
+		if(candidate_ids.empty())
 		{
-			cerr << "No Straight Edge Point Detected...\n\n" << endl;
+			//cerr << "No Straight Edge Point Detected...\n\n" << endl;
 			return false;
 		}
 
@@ -463,7 +470,7 @@ namespace edgedet
 				const float& curr_amplitude = deriv1.at<float>(0, curr_col);
 
 				/** Condition **
-				*
+				* Extract Local Maximum.
 				* 1. every partition size is less than MAX_CONSEC_NUM
 				* 2. column distance is less than MAX_CONSEC_NUM
 				* 3. current point and next point both have the same sign
@@ -488,8 +495,8 @@ namespace edgedet
 			{
 				parts_inds.push_back(parts);
 			}
-
-			// search local maximum of each partition
+			
+			// search for local maximum of each partition
 			for (size_t i = 0; i != parts_inds.size(); ++i)
 			{
 				const auto& partition = parts_inds[i];
@@ -508,7 +515,7 @@ namespace edgedet
 
 				cv::Point2f edge_pt;
 				double offset = 0.0;
-				double amp = edgeSubPixel(deriv1, offset, local_max_ind);
+				edgeSubPixel(deriv1, offset, local_max_ind);
 
 				if (profile_line.first.x != profile_line.second.x)
 				{
@@ -529,8 +536,8 @@ namespace edgedet
 					);
 				}
 				edge_points.emplace_back(edge_pt);
-				amplitudes.push_back(amp);
-			}
+				amplitudes.push_back(max_amp);
+			}	
 		}
 		else if (candidate_ids.size() == 1)
 		{
@@ -538,8 +545,8 @@ namespace edgedet
 			amplitudes.push_back(deriv1.at<float>(0, candidate_ids[0]));
 		}
 
-		cv::Point2f temp_pt;
-		float temp_amp = 0.0f;
+		cv::Point2f first_pt, last_pt;
+		float first_amp = 0.0f, last_amp = 0.0f;
 
 		switch (select)
 		{
@@ -562,27 +569,45 @@ namespace edgedet
 			break;
 
 		case Select::FIRST:
-			temp_pt = edge_points.front();
-			temp_amp = amplitudes.front();
+			first_pt = edge_points.front();
+			first_amp = amplitudes.front();
 
 			edge_points.clear();
 			amplitudes.clear();
 
-			edge_points.emplace_back(temp_pt);
-			amplitudes.push_back(temp_amp);
+			edge_points.emplace_back(first_pt);
+			amplitudes.push_back(first_amp);
 
 			distances.clear();	// no distance
 			break;
 
 		case Select::LAST:
-			temp_pt = edge_points.back();
-			temp_amp = amplitudes.back();
+			last_pt = edge_points.back();
+			last_amp = amplitudes.back();
 
 			edge_points.clear();
 			amplitudes.clear();
 
-			edge_points.emplace_back(temp_pt);
-			amplitudes.push_back(temp_amp);
+			edge_points.emplace_back(last_pt);
+			amplitudes.push_back(last_amp);
+
+			distances.clear();	// no distance
+			break;
+
+		case Select::FIRST_LAST:
+			first_pt = edge_points.front();
+			first_amp = amplitudes.front();
+
+			last_pt = edge_points.back();
+			last_amp = amplitudes.back();
+
+			edge_points.clear();
+			amplitudes.clear();
+
+			edge_points.emplace_back(first_pt);
+			edge_points.emplace_back(last_pt);
+			amplitudes.push_back(first_amp);
+			amplitudes.push_back(last_amp);
 
 			distances.clear();	// no distance
 			break;
@@ -590,25 +615,26 @@ namespace edgedet
 		default:
 			break;
 		}
-		timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
-		timer_total = (cv::getTickCount() - timer_total) / cv::getTickFrequency();
 
-		cout << "\n----- Measure Pos Consume: "
-			<< timer * 1000.0 << " ms\n" << endl;
+		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
+		//timer_total = (cv::getTickCount() - timer_total) / cv::getTickFrequency();
 
-		cout << "----- Total Process Consume: "
-			<< timer_total * 1000.0 << " ms \n" << endl;
+		//cout << "\n----- Measure Pos Consume: "
+		//	<< timer * 1000.0 << " ms\n" << endl;
+		//
+		//cout << "\n----- Process Consume: "
+		//	<< timer_total * 1000.0 << " ms \n" << endl;
 
-		cout << "Amplitude is:\n";
-		for (const auto& amp : amplitudes)
-			cout << amp << " ";
-		cout << "\nDistance is:\n";
-		for (const auto& dist : distances)
-			cout << dist << " ";
-		cout << "\nEdge Point is:\n";
-		for (const auto& pt : edge_points)
-			cout << pt << " ";
-		cout << endl;
+		//cout << "\nAmplitude is:\n";
+		//for (const auto& amplitude : amplitudes)
+		//	cout << amplitude << " ";
+		//cout << "\nDistance is:\n";
+		//for (const auto& dist : distances)
+		//	cout << dist << " ";
+		//cout << "\nEdge Point is:\n";
+		//for (const auto& pt : edge_points)
+		//	cout << pt << " ";
+		//cout << endl;
 
 		// show and print result
 		bool display_result = false;
@@ -647,7 +673,7 @@ namespace edgedet
 		Y = cv::repeat(Y.t(), 1, X.cols);
 	}
 
-	void ellipseEdgeDetect(const cv::Mat& src, cv::Mat& dst, std::vector<cv::Point2f>& ellip_points,
+	void ellipseEdgeDetect(const cv::Mat& src, std::vector<cv::Point2f>& ellip_points,
 		const cv::Point2f& flatten_center, int sample_radius, int num_sample_angle, double col_ratio, bool is_dark)
 	{
 		//double timer = cv::getTickCount();
@@ -694,6 +720,8 @@ namespace edgedet
 		linspace(sample_radius, 0.0f, num_sample_rad, Rad);
 		meshgrid(Phi, Rad);
 
+		cv::Mat dst;
+		// create map to flatten src image.
 		cv::Mat map_x = cv::Mat(Phi.size(), CV_32F);
 		cv::Mat map_y = cv::Mat(Phi.size(), CV_32F);
 
@@ -712,13 +740,16 @@ namespace edgedet
 				}
 			});
 
+		double max_val = 0.0, min_val = 0.0;
+		cv::minMaxIdx(gray, &min_val, &max_val);
+		// to detect the darkest edge or the brightest edge 
 		if (is_dark)
 		{
-			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, 255);	// straight the ellipse
+			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, max_val);	// straight the ellipse
 		}
 		else
 		{
-			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, 0);
+			cv::remap(gray, dst, map_x, map_y, cv::INTER_NEAREST, cv::BORDER_CONSTANT, min_val);
 		}
 
 		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
@@ -734,13 +765,13 @@ namespace edgedet
 
 		if (is_dark) 
 		{
-			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, 255);
-			temp.convertTo(temp, CV_32F, -1.0, 255.0);		// reverse image pixel to 255 - pixelVal
+			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, max_val);
+			temp.convertTo(temp, CV_32F, -1.0, max_val);		// reverse image pixel to 255 - pixelVal
 		}
 		else
 		{
-			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, 0);
-			temp.convertTo(temp, CV_32F);		// reverse image pixel to 255 - pixelVal
+			cv::copyMakeBorder(dst, temp, 1, 1, 0, 0, cv::BORDER_CONSTANT, min_val);
+			temp.convertTo(temp, CV_32F);		
 		}
 
 		cv::Mat dp = cv::Mat::zeros(temp.rows, 1, CV_32F);
@@ -751,10 +782,9 @@ namespace edgedet
 			if (i == static_cast<int>((1 - col_ratio) * dst.cols))
 			{
 				int local_max = argmax<float>((float*)dp.data, dp.rows);
-
-				// limit searching range in ±rows/ value. if value is too small, the algorithm may be wrong. 
-				range_start = (local_max - dp.rows / 10 > 0) ? (local_max - dp.rows / 10) : 0;
-				range_end = (local_max + dp.rows / 10 < temp.rows) ? (local_max + dp.rows / 10) : dp.rows - 1;
+				// limit the searching range in ±rows/5
+				range_start = (local_max - dp.rows / 5 > 0) ? (local_max - dp.rows / 5) : 0;
+				range_end = (local_max + dp.rows / 5 < temp.rows) ? (local_max + dp.rows / 5) : dp.rows - 1;
 			}
 
 			cv::Mat_<float> node_statue = cv::Mat_<float>::zeros(dst.rows, 1);
@@ -797,6 +827,7 @@ namespace edgedet
 		cv::Mat drawImg;
 		dst.convertTo(drawImg, CV_8UC1);
 		cv::cvtColor(drawImg, drawImg, cv::COLOR_GRAY2BGR);
+
 		for (int i = 1; i < p.size(); i++)
 		{
 			int py = index_map.ptr<int>(index)[i];
@@ -820,4 +851,4 @@ namespace edgedet
 		//timer = (cv::getTickCount() - timer) / cv::getTickFrequency();
 		//cout << "Coordinate Conversion Consume: " << timer * 1000.0 << " ms\n" << endl;
 	}
-} // namespace edgedet
+}// namespace edgedet

@@ -776,15 +776,15 @@ namespace edgedet
 
 		cv::Mat dp = cv::Mat::zeros(temp.rows, 1, CV_32F);
 		cv::Mat_<int> index_map(dst.rows, dst.cols - 1, 0);
-
+		constexpr int REDUCTION = 5;	// 超参数，越大速度越快，但可能导致不稳定
 		for (int i = dst.cols - 1; i > 0; --i)
 		{
 			if (i == static_cast<int>((1 - col_ratio) * dst.cols))
 			{
 				int local_max = argmax<float>((float*)dp.data, dp.rows);
-				// limit the searching range in ±rows/5
-				range_start = (local_max - dp.rows / 5 > 0) ? (local_max - dp.rows / 5) : 0;
-				range_end = (local_max + dp.rows / 5 < temp.rows) ? (local_max + dp.rows / 5) : dp.rows - 1;
+				// limit the searching range in ±rows/REDUCTION
+				range_start = (local_max - dp.rows / REDUCTION > 0) ? (local_max - dp.rows / REDUCTION) : 0;
+				range_end = (local_max + dp.rows / REDUCTION < temp.rows) ? (local_max + dp.rows / REDUCTION) : dp.rows - 1;
 			}
 
 			cv::Mat_<float> node_statue = cv::Mat_<float>::zeros(dst.rows, 1);

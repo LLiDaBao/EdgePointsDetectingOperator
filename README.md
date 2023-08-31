@@ -1,6 +1,6 @@
 # EdgePointsDetectingOperator
-__功能__: 抓边算子。在指定ROI(矩形或环形区域)内, 沿主轴(轮廓线)的边缘点提取, 以及检测椭圆边缘。    
-__Function__: Extract pre-defined region (rectangle or annulus) edge points along the profilie line and detect ellipse edge points. 
+__功能__: 抓边算子。在指定ROI(矩形或环形区域)内, 沿主轴(轮廓线)的边缘点提取(与Halcon的meaure_pos功能一致), 以及检测椭圆边缘。    
+__Function__: Extract pre-defined region (rectangle or annulus) edge points along the profilie line(like measure_pos operator in Halcon lib) and detect ellipse edge points. 
 
 
 __1__. ___亚像素边缘点提取___  
